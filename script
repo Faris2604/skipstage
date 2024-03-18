@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+    parameters {
+        booleanParam(name: 'skipStage', defaultValue: false, description: 'Skip a specific stage')
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+             script{
+                git credentialsId: 'git-cred', url: 'https://github.com/Faris2604/skipstage.git'
+               }
+            }
+        }
+        stage('Test') {
+            when {
+                expression {
+                    // Check if skipStage parameter is false
+                    return !params.skipStage
+                }
+            }
+            steps {
+              script{
+                sh 'npm install'
+              }
+            }
+        }
+        stage('Build') {
+          steps {
+            script {
+               sh "docker build -t mightyvenkat/rocketapp:v1 ."
+               sh "docker images"
+              }
+           }
+        }
+        stage('Deploy') {
+          steps {
+            script {
+               sh "echo Ready to deploy"
+              }
+           }
+        }
+    }
+}
